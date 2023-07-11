@@ -37,9 +37,9 @@
             return Result.Draw;
         }
 
-        public List<Moves> BeatenBy(Moves player1)
+        public IEnumerable<Moves> BeatenBy(Moves player1)
         {
-            return MovesExtensions.Playable.Where(p2 => Check(player1, p2) == Result.Player2).ToList();
+            return MovesExtensions.Playable.Where(p2 => Check(player1, p2) == Result.Player2);
         }
 
         public static Rules BuildDefaultRules()

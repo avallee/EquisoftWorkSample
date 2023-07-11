@@ -1,21 +1,36 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EquisoftWorkSample.Game;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EquisoftWorkSample.Controllers
 {
     [ApiController]
-    [Route("games")]
+    [Route("/api/games")]
     public class GamesListController
     {
-        public IEnumerable<GameListItem> Index()
+
+        private readonly IDictionary<Guid, Game.Game> _games;
+
+        public GamesListController(IDictionary<Guid, Game.Game> games)
         {
-            return new List<GameListItem>
-            {
-                new GameListItem()
-                {
-                    Id = Guid.NewGuid(),
-                    WinningPlayer = 1
-                }
-            };
+            _games = games;
+        }
+
+        [HttpGet]
+        public IEnumerable<GameListItem> Get()
+        {
+            return _games
+                .Select(g => new GameListItem() { Created = g.Value.Created, Id = g.Key, WinningPlayer = g.Value.WinningPlayerNumber })
+                .OrderByDescending(game => game.Created);
+        }
+
+        [HttpPost]
+        public IActionResult Post()
+        {
+            var game = new Game.Game();
+            var id = Guid.NewGuid();
+            _games.Add(id, game);
+
+            return new RedirectResult(String.Format("/api/game/{0}", id));
         }
     }
 }

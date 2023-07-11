@@ -1,8 +1,12 @@
+using EquisoftWorkSample.Game;
+using System.Collections.Concurrent;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<IDictionary<Guid, Game>>(new ConcurrentDictionary<Guid, Game>());
 
 var app = builder.Build();
 
@@ -20,7 +24,7 @@ app.UseRouting();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "api/{controller}/{action=Index}/{id?}");
+    pattern: "{controller}/{action=Index}/{id?}");
 
 app.MapFallbackToFile("index.html"); ;
 

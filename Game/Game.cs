@@ -2,11 +2,13 @@
 {
     public class Game
     {
+        public DateTime Created { get; init; }
+
         public Rules CurrentRules { get; init; }
 
         public int WinsRequired { get; init; }
 
-        private class PlayerState
+        public class PlayerState
         {
             public int Wins { get; set; } = 0;
 
@@ -14,11 +16,31 @@
 
             public Moves Move { get; set; } = Moves.None;
 
+            public Moves LastMove { get; set; } = Moves.None;
+
         }
 
-        private PlayerState Player1 { get; set; }
+        // Running out of time, this should be enum
+        public string GameState { get
+            {
+                if (!MovesExtensions.Playable.Contains(Player1.Move) && !MovesExtensions.Playable.Contains(Player2.Move))
+                {
+                    return "none";
+                }
+                if (MovesExtensions.Playable.Contains(Player1.Move))
+                {
+                    return "1";
+                }
+                if (MovesExtensions.Playable.Contains(Player2.Move))
+                {
+                    return "2";
+                }
+                return "both";
+            } }
 
-        private PlayerState Player2 { get; set; }
+        public PlayerState Player1 { get; set; }
+
+        public PlayerState Player2 { get; set; }
 
         public bool IsPlayableMovesSelected {  get
             {
@@ -33,10 +55,11 @@
                 return null;
             } }
 
-        private int? WinningPlayerNumber => WinningPlayer?.PlayerNumer;
+        public int? WinningPlayerNumber => WinningPlayer?.PlayerNumer;
 
         public Game()
         {
+            Created = DateTime.Now;
             CurrentRules = Rules.Default;
             WinsRequired = 3;
             Player1 = new PlayerState { PlayerNumer = 1};
@@ -54,6 +77,8 @@
 
         private void ResetMoves()
         {
+            Player1.LastMove = Player1.Move;
+            Player2.LastMove = Player2.Move;
             Player1.Move = Moves.None;
             Player2.Move = Moves.None;
         }

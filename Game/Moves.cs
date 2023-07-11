@@ -10,7 +10,7 @@
 
     public static class MovesExtensions
     {
-        public static ISet<Moves> Playable { get; } = Enum.GetValues(typeof(Moves))
-            .Cast<Moves>().Where(x => x != Moves.None ).ToHashSet();
+        public static IEnumerable<Moves> Playable { get; } = Enum.GetValues(typeof(Moves))
+            .Cast<Moves>().Where(x => x != Moves.None );
     }
 }
