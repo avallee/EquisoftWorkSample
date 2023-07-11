@@ -18,17 +18,17 @@ export default function GameView() {
     }, [moveState]);
 
     useEffect(() => {
-        function load() {
-            if (gameState.loaded !== 'loading') {
+        function load(pred) {
+            if (pred()) {
                 setGameState((prev) => ({ ...prev, loaded: 'loading' }));
                 fetch(`/api/game/${gameid}`).then(resp => resp.json()).then((game) => {
                     setGameState((prev)=>({...prev, loaded: 'loaded', game }));
                 });
             }
         };
-        load();
-    //    const intervalId = setInterval(load, 15 * 1000);
-    //    return () => clearInterval(intervalId);
+        load(()=> { return gameState.loaded === false });
+        const intervalId = setInterval(load, 15 * 1000, () => { return gameState.loaded !== 'loading' });
+        return () => clearInterval(intervalId);
 
     }, [gameState, gameid]);
 
@@ -46,25 +46,33 @@ export default function GameView() {
             </select>)
     }
 
+    function renderButtons() {
+        return (<>
+                <button onClick={SendMovePlayer}>Play</button>
+                {playerid == 1 && <button onClick={SendMoveComputer}>Play Computer</button>})
+            </>);
+    }
+
     function renderGame() {
         return gameState.loaded === 'loaded' || (gameState.loaded === 'loading' && gameState.game !== null) ?
-        (<>
-            <table>
-                <thead>
-                    <tr>
-                        <th colSpan="2">Match results</th>
-                    </tr>
-                    <tr>
-                        <th>Player 1 Wins</th>
-                        <th>Player 2 Wins</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
+            (<>
+                {gameState.game && gameState.game.winner !== null && <h2>Player {gameState.game.winner} has won!</h2>}
+                <table>
+                    <thead>
+                        <tr>
+                            <th colSpan="2">Match results</th>
+                        </tr>
+                        <tr>
+                            <th>Player 1 Wins</th>
+                            <th>Player 2 Wins</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
                             <td>{gameState.game.player1Wins}</td>
                             <td>{gameState.game.player2Wins}</td>
-                    </tr>
-                </tbody>
+                        </tr>
+                    </tbody>
                 </table>
                 <table>
                     <thead>
@@ -81,13 +89,13 @@ export default function GameView() {
                     <tbody>
                         <tr>
                             <td>{gameState.game.player1LastMove}</td>
-                            <td>{gameState.game.player1LastMove}</td>
+                            <td>{gameState.game.player2LastMove}</td>
                             <td>{gameState.selected}</td>
                             <td>{gameState.game.state}</td>
                         </tr>
                     </tbody>
                 </table>
-        </>) :( <p>loading...</p>) 
+            </>) :( <p>loading...</p>) 
 
 
     }
@@ -122,9 +130,7 @@ export default function GameView() {
             {renderGame()}
 
             {renderMovesOptions()}
-            <button onClick={SendMovePlayer}>Play</button>
-            {playerid == 1 && <button onClick={SendMoveComputer}>Play Computer</button>}
-       
+            {(gameState.game && gameState.game.winner === null) && renderButtons()}
         </>
     )
 }
